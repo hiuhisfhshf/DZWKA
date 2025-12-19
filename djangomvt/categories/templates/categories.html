@@ -1,24 +1,51 @@
 {% extends 'layout.html' %}
+{% load static %}
 
 {% block content %}
-   <h1 class="text-center">Список категорій</h1>
-   <div>
-     <a href = "add" class="btn btn-success">Додати</a>
+   <h1 class="text-center mb-4">Список категорій</h1>
+   <div class="mb-4">
+     <a href="add" class="btn btn-success">Додати категорію</a>
    </div>
-    <ul>
+   
+   {% if categories %}
+   <div class="row g-4">
          {% for category in categories %}
-              <li>
-                <h2>{{ category.name }}</h2>
-                <p>{{ category.description }}</p>
-                {% if category.image %}
+              <div class="col-md-4 col-lg-3">
+                <div class="card h-100 shadow-sm">
+                  {% if category.image %}
                      <img src="{{ category.image.url }}" 
+                        class="card-img-top"
                         alt="{{ category.name }}"
-                        width="250">
-                {% endif %}
-              </li>
-         {% empty %}
-              <li>Категорії відсутні.</li>
+                        style="height: 200px; object-fit: cover;">
+                  {% else %}
+                     <img src="/images/noimage.jpg" 
+                        class="card-img-top"
+                        alt="{{ category.name }}"
+                        style="height: 200px; object-fit: cover;">
+                  {% endif %}
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ category.name }}</h5>
+                    {% if category.description %}
+                    <p class="card-text flex-grow-1">{{ category.description|truncatewords:15 }}</p>
+                    {% else %}
+                    <p class="card-text text-muted flex-grow-1">Опис відсутній</p>
+                    {% endif %}
+                    <div class="mt-auto">
+                      {% if category.is_active %}
+                      <span class="badge bg-success">Активна</span>
+                      {% else %}
+                      <span class="badge bg-secondary">Неактивна</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
          {% endfor %}
-    </ul>
+   </div>
+   {% else %}
+   <div class="alert alert-info text-center">
+     <p class="mb-0">Категорії відсутні.</p>
+   </div>
+   {% endif %}
 
-    {% endblock %}
+{% endblock %}
