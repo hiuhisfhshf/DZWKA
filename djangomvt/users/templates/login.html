@@ -1,62 +1,46 @@
 {% extends "layout.html" %}
 
 {% block content %}
+
 <h1 class="text-center">Вхід</h1>
 
-<div class="row">
-  <div class="col-md-4 offset-md-4">
-    <form method="post" class="needs-validation" novalidate>
-      {% csrf_token %}
+<div class = "row">
+<div class = "col-md-6 offset-md-3">
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        {% for err in form.non_field_errors %}
+            <p class="form-error">{{ err }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-      {% if form.errors %}
-      <div class="alert alert-danger">
-        Невірний логін або пароль. Спробуйте ще раз.
-      </div>
-      {% endif %}
+    <div class="mb-3">
+        <label for="username" class="form-label">{{form.username.label}}</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+            <div class="text-danger">{{ form.username.errors }}</div>
+        {% endif %}
+    </div>
+                
 
-      <div class="mb-3">
-        <label for="id_username" class="form-label">Логін</label>
-        <input type="text" class="form-control" id="id_username" name="username" required>
-        <div class="invalid-feedback">Будь ласка, введіть логін</div>
-      </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">{{form.password.label}}</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+            <div class="text-danger">{{ form.password.errors }}</div>
+        {% endif %}
+    </div>
 
-      <div class="mb-3">
-        <label for="id_password" class="form-label">Пароль</label>
-        <input type="password" class="form-control" id="id_password" name="password" required>
-        <div class="invalid-feedback">Будь ласка, введіть пароль</div>
-      </div>
-
-      <div class="d-flex justify-content-between align-items-center">
-        <button type="submit" class="btn btn-primary">Увійти</button>
+    <div class="d-flex justify-content-between align-items-center">
+        <button type="submit" class="btn" style="background-color:black; color:white;">Увійти</button>
         <a href="{% url 'users:password_reset' %}">Забули пароль?</a>
-      </div>
-    </form>
-  </div>
+    </div>
+</form>
 </div>
+</div>
+
 {% endblock %}
-
-{% block scripts %}
-<script>
-// Bootstrap validation
-(function () {
-  'use strict'
-
-  var forms = document.querySelectorAll('.needs-validation')
-
-  Array.prototype.slice.call(forms)
-    .forEach(function (form) {
-      form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
-
-        form.classList.add('was-validated')
-      }, false)
-    })
-})()
-</script>
-{% endblock %}
-
-
 

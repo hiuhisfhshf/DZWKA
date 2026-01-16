@@ -33,11 +33,21 @@
                             <a class="nav-link disabled" aria-disabled="true">Disabled</a> 
                         </li> 
                     </ul> 
-                    <form class="d-flex" role="search"> 
-                        <input class="form-control me-2" type="search" 
-                            placeholder="Search" aria-label="Search"> 
-                        <button class="btn btn-outline-success" type="submit">Search</button> 
-                    </form> 
+                    {%if not user.is_authenticated%}
+                    <div class="d-flex" style="margin-right:20px;" >
+                        <a class="btn" style="background-color:black;" href="/users/login">Вхід</a>
+                    </div>
+                    <div class="d-flex" style="margin-right:20px;">
+                        <a class="btn" width="100px" style="background-color:black;" href="/users/register">Реєстрація</a>
+                    </div>
+                    {%else%}
+                    <div class="d-flex" style="margin-right:20px">
+                        <a class='btn' style="background-color:black;" href="/users/profile">
+                            Привіт, {{user.username}}!
+                        </a>
+                        <a class='btn' style="background-color:black;" href="/users/logout">Вихід</a>
+                    </div>
+                    {%endif%}
                 </div> 
             </div> 
         </nav> 

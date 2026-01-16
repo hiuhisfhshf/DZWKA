@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, CustomUserLogin
 from .utils import compress_image
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import admin
 
 # Create your views here.
 def register(request):
@@ -30,3 +32,23 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        form = CustomUserLogin(data=request.POST)
+        if form.is_valid():
+            user = authenticate(request, username = form.cleaned_data['username'], password = form.cleaned_data['password'])
+            if user is not None:
+                login(request,user)
+                return redirect('categories:show_categories')
+                    
+        else:
+            messages.success(request, 'Виправте помилки в формі')
+    else:
+        form = CustomUserLogin()
+    return render(request, 'login.html', {'form':form})
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('categories:show_categories')

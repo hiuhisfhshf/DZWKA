@@ -80,19 +80,19 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 #kigal43541@idwager.comQ
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': 'ep-long-math-a4tzx65w-pooler.us-east-1.aws.neon.tech',
-        'NAME': 'neondb',
-        'USER': 'neondb_owner',
-        'PASSWORD': 'npg_uSLDCcR0I8Oz',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'HOST': 'localhost',
+    #     'NAME': 'pd421_django_mvt',
+    #     'USER': 'postgres',
+    #     'PASSWORD': '123456',
+    #     'PORT': '5432'
+    # }
 }
 
 
@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uk-UA'
 
 TIME_ZONE = 'UTC'
 
@@ -136,11 +136,19 @@ STATICFILES_DIRS = [
     str(BASE_DIR / 'static'),
 ]
 
-IMAGE_URL = '/images/'
+# Media files (uploaded by users)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
+# Images for categories
+IMAGE_URL = '/images/'
 IMAGES_ROOT = BASE_DIR / 'images'
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# Email settings for password reset (development: console backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
