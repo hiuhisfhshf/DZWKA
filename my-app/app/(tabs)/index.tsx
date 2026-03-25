@@ -1,28 +1,60 @@
 import {Image} from 'expo-image';
-import {Alert, Button, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+    ActivityIndicator,
+    Modal,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View,
+} from 'react-native';
 
-import {HelloWave} from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import {ThemedText} from '@/components/themed-text';
 import {ThemedView} from '@/components/themed-view';
-import {Link} from 'expo-router';
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {ICategoryResponse} from "@/types/ICategoryResponse";
 import {useDeleteCategoryMutation, useGetCategoriesQuery} from "@/store/apis/categoryApi";
 import {IMAGES_URL} from "@/constants/urls";
 
 export default function HomeScreen() {
     const {data, isLoading} = useGetCategoriesQuery()
-    const [deleteCategory] = useDeleteCategoryMutation();
+    const [deleteCategory, {isLoading: isDeleting}] = useDeleteCategoryMutation();
 
-    const deleteHandler = (id: string) => {
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+    const [selectedCategoryName, setSelectedCategoryName] = useState('');
+
+    const deleteHandler = async (id: string) => {
         try {
-            deleteCategory(id).unwrap();
+            await deleteCategory(id).unwrap();
         }
         catch (e) {
             console.log("error", e);
         }
     }
+
+    const closeDeleteModal = () => {
+        setIsDeleteModalVisible(false);
+        setSelectedCategoryId(null);
+        setSelectedCategoryName('');
+    };
+
+    const openDeleteModal = (id: string, name: string) => {
+        setSelectedCategoryId(id);
+        setSelectedCategoryName(name);
+        setIsDeleteModalVisible(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedCategoryId) return;
+
+        try {
+            await deleteHandler(selectedCategoryId);
+        } finally {
+            closeDeleteModal();
+        }
+    };
 
 
 
@@ -63,20 +95,7 @@ export default function HomeScreen() {
                                     {category.description}
                                 </Text>
                                 <TouchableOpacity className="py-3 rounded-full bg-red-600"
-                                    onPress={() => {
-                                        Alert.alert(
-                                            "Delete Category",
-                                            `Delete "${category.name}"?`,
-                                            [
-                                                { text: "Cancel", style: "cancel" },
-                                                {
-                                                    text: "Delete",
-                                                    style: "destructive",
-                                                    onPress: () => deleteHandler(category.id),
-                                                },
-                                            ]
-                                        );
-                                    }}
+                                    onPress={() => openDeleteModal(category.id, category.name)}
                                 >
                                     <Text className={"text-white text-center"}>Видалити</Text>
                                 </TouchableOpacity>
@@ -86,6 +105,60 @@ export default function HomeScreen() {
                     ))
                 )}
             </ThemedView>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={isDeleteModalVisible}
+                onRequestClose={closeDeleteModal}
+            >
+                <View className="flex-1 bg-black/60 justify-center px-6">
+                    <TouchableWithoutFeedback onPress={closeDeleteModal}>
+                        <View className="absolute inset-0" />
+                    </TouchableWithoutFeedback>
+
+                    <View className="bg-white dark:bg-neutral-900 rounded-2xl p-5 shadow-2xl">
+                        <ThemedText
+                            className="text-xl font-bold mb-3"
+                            style={{ color: 'inherit' }}
+                        >
+                            Видалити категорію
+                        </ThemedText>
+                        <ThemedText
+                            className="text-gray-600 dark:text-gray-300 text-base"
+                            style={{ color: 'inherit' }}
+                        >
+                            Ви впевнені, що бажаєте видалити &quot;{selectedCategoryName}&quot;?
+                        </ThemedText>
+
+                        <View className="flex-row mt-5 gap-3">
+                            <TouchableOpacity
+                                className="flex-1 py-3 rounded-full bg-gray-200 dark:bg-neutral-800"
+                                onPress={closeDeleteModal}
+                                disabled={isDeleting}
+                            >
+                                <Text className="text-center text-gray-900 dark:text-white font-semibold">
+                                    Скасувати
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                className="flex-1 py-3 rounded-full bg-red-600"
+                                onPress={confirmDelete}
+                                disabled={!selectedCategoryId || isDeleting}
+                            >
+                                {isDeleting ? (
+                                    <ActivityIndicator color="white" />
+                                ) : (
+                                    <Text className="text-white text-center font-semibold">
+                                        Видалити
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
         </ParallaxScrollView>
     );

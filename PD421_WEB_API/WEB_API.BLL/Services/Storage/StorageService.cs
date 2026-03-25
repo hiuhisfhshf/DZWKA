@@ -1,109 +1,62 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Processing;
-namespace WEB_API.BLL.Services.Storage;
-
-public class StorageService(IConfiguration configuration) : IStorageService
+namespace WEB_API.BLL.Services.Storage
 {
-
-    public async Task<string> SaveImageAsync(byte[] bytes)
+    public class StorageService : IStorageService
     {
-        string imageName = $"{Path.GetRandomFileName()}.webp";
-        var sizes = configuration.GetRequiredSection("ImageSizes").Get<List<int>>();
-
-        Task[] tasks = sizes
-            .AsParallel()
-            .Select(s => SaveImageAsync(bytes, imageName, s))
-            .ToArray();
-
-        await Task.WhenAll(tasks);
-
-        return imageName;
-    }
-
-    private async Task SaveImageAsync(byte[] bytes, string name, int size)
-    {
-        var path = Path.Combine(StorageOptions.ImagesPath,
-            $"{size}_{name}");
-        using var image = Image.Load(bytes);
-        image.Mutate(async imgConext =>
+        public async Task<string?> SaveImageAsync(IFormFile file)
         {
-            imgConext.Resize(new ResizeOptions
+            try
             {
-                Size = new Size(size, size),
-                Mode = ResizeMode.Max
-            });
-            await image.SaveAsync(path, new WebpEncoder());
-        });
-    }
-    public async Task<string?> SaveImageAsync(IFormFile file)
-    {
-        try
-        {
-            using MemoryStream ms = new();
-            await file.CopyToAsync(ms);
-            var bytes = ms.ToArray();
-
-            var imageName = await SaveImageAsync(bytes);
-            return imageName;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("EXCEPTION: " + ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<string?> SaveImageAsync(String url)
-    {
-        try
-        {
-            using var httpClient = new HttpClient();
-            var imageBytes = await httpClient.GetByteArrayAsync(url);
-            return await SaveImageAsync(imageBytes);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("EXCEPTION: " + ex.Message);
-            return null;
-        }
-    }
-
-    public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> files)
-    {
-        var tasks = files.Select(SaveImageAsync);
-        var results = await Task.WhenAll(tasks);
-        return results.Where(res => res != null)!;
-    }
-
-    public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<String> urls)
-    {
-        var tasks = urls.Select(SaveImageAsync);
-        var results = await Task.WhenAll(tasks);
-        return results.Where(res => res != null)!;
-    }
-
-    public async Task DeleteImageAsync(string imageName)
-    {
-        var sizes = configuration.GetRequiredSection("ImageSizes").Get<List<int>>();
-
-        Task[] tasks = sizes
-            .AsParallel()
-            .Select(size =>
-            {
-                return Task.Run(() =>
+                var types = file.ContentType.Split('/');
+                if (types.Length != 2 || types[0] != "image")
                 {
-                    var path = Path.Combine(StorageOptions.ImagesPath, $"{size}_{imageName}");
-                    if (File.Exists(path))
-                    {
-                        File.Delete(path);
-                    }
-                });
-            })
-            .ToArray();
+                    Console.WriteLine("BAD IMAGE");
+                    return null;
+                }
 
-        await Task.WhenAll(tasks);
+                string baseFolder = Path.Combine(StorageOptions.ImagesPath);
+                Directory.CreateDirectory(baseFolder);
+                string extension = Path.GetExtension(file.FileName);
+                string imageName = $"{Guid.NewGuid()}{extension}";
+                string imagePath = Path.Combine(baseFolder, imageName);
+
+                using (var stream = File.Create(imagePath))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                return imageName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> files)
+        {
+            var tasks = files.Select(SaveImageAsync);
+            var results = await Task.WhenAll(tasks);
+            return results.Where(res => res != null)!;
+        }
+
+        public async Task DeleteImageAsync(string imagePath)
+        {
+            Console.WriteLine(imagePath);
+            if (File.Exists(imagePath))
+            {
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        File.Delete(imagePath);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
     }
 }

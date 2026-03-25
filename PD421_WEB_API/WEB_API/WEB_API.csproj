@@ -20,10 +20,4 @@
     <ProjectReference Include="..\WEB_API.BLL\WEB_API.BLL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="Helpers\JsonData\Users.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>

@@ -1,16 +1,12 @@
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using WEB_API.BLL.Services;
-using WEB_API.BLL.Services.Auth;
+using WEB_API.BLL.Services.Categories;
 using WEB_API.BLL.Services.Category;
 using WEB_API.BLL.Services.Storage;
+using WEB_API.Controllers.Category;
 using WEB_API.DAL;
-using WEB_API.DAL.Entities.Identity;
+using WEB_API.DAL.repositories.category;
 using WEB_API.DAL.Repositories.Category;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,57 +32,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services
-    .AddIdentity<UserEntity, RoleEntity>(options =>
-    {
-        options.Password.RequiredLength = 6;
-        options.Password.RequireDigit = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireNonAlphanumeric = false;
-    })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
-
-
-
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
-builder.Services.AddScoped<IStorageService, StorageService>();
-builder.Services.AddScoped<IJWTTokenService, JWTTokenService>();
-//builder.Services.AddTransient<IJWTTokenService, JWTTokenService>();
+builder.Services.AddSingleton<IStorageService, StorageService>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.LicenseKey = builder.Configuration.GetConnectionString("AutoMapperKey");
 
 }, AppDomain.CurrentDomain.GetAssemblies());
-
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = true,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!))
-    };
-
-});
-
-
 var app = builder.Build();
 app.UseCors("AllowAnyOriginPolicy");
 
@@ -105,7 +59,7 @@ StorageOptions.ImagesPath = path;
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(path),
-    RequestPath = "/images"
+    RequestPath = "/category-images"
 });
 
 
@@ -115,6 +69,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.SeedDataAsync();
+using var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+context.Database.Migrate();
+
 
 app.Run();

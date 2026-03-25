@@ -2,12 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using WEB_API.BLL;
 using WEB_API.BLL.Dtos.Category;
+using WEB_API.BLL.Services.Categories;
 using WEB_API.BLL.Services.Category;
 
 namespace WEB_API.Controllers.Category
 {
     [Route("api/categories")]
     [ApiController]
+
+
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -23,12 +26,6 @@ namespace WEB_API.Controllers.Category
         public async Task<ServerResponse> GetAll()
         {
             return await _categoryService.GetAll();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ServerResponse> GetById(String id)
-        {
-            return await _categoryService.GetById(id);
         }
 
         [HttpPost]

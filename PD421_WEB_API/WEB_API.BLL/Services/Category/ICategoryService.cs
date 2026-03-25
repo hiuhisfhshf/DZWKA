@@ -6,8 +6,6 @@ namespace WEB_API.BLL.Services.Category
     {
         public Task<ServerResponse> GetAll();
 
-        public Task<ServerResponse> GetById(String id);
-
         public Task<ServerResponse> Create(CreateCategoryDTO dto);
 
         public Task<ServerResponse> Delete(String id);
