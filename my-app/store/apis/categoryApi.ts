@@ -4,6 +4,7 @@ import {ICategoryResponse} from "@/types/ICategoryResponse";
 import {BASE_URL} from "@/constants/urls";
 import {ICreateCategory} from "@/types/ICreateCategory";
 import { serialize } from "object-to-formdata";
+import {IUpdateCategory} from "@/types/IUpdateCategory";
 
 // Define a service using a base URL and expected endpoints
 
@@ -33,6 +34,33 @@ export const categoryApi = createApi({
             }),
             invalidatesTags: ["Categories","Category"]
         }),
+        getById: builder.query<ICategoryResponse, void>({
+            query: id => ({
+                url: `${id}`
+            }),
+            providesTags: ["Categories", "Category"]
+        }),
+        updateCategory: builder.mutation<void, IUpdateCategory>({
+            query:(data) => {
+                const { image, ...rest } = data;
+                const formData = serialize(rest);
+
+                if (image?.uri && !image.uri.startsWith('http')) {
+                    formData.append('image', {
+                        uri: image.uri,
+                        type: 'image/jpeg',
+                        name: 'image.jpg',
+                    } as any);
+                }
+                return {
+                    url: "",
+                    method: "PUT",
+                    body: formData,
+                }
+            },
+            invalidatesTags:["Categories","Category"]
+        })
+
     }),
 })
 
@@ -42,5 +70,7 @@ export const categoryApi = createApi({
 export const {
     useGetCategoriesQuery,
     useCreateCategoryMutation,
-    useDeleteCategoryMutation
+    useDeleteCategoryMutation,
+    useGetByIdQuery,
+    useUpdateCategoryMutation
 } = categoryApi

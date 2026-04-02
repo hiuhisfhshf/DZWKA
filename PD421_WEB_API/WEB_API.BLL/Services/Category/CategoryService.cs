@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using WEB_API.BLL.Dtos.Category;
-using WEB_API.BLL.Services.Category;
 using WEB_API.BLL.Services.Storage;
 using WEB_API.DAL.Entities.Category;
-using WEB_API.DAL.repositories.category;
+using WEB_API.DAL.Repositories.Category;
 
-namespace WEB_API.BLL.Services.Categories
+namespace WEB_API.BLL.Services.Category
 {
     public class CategoryService : ICategoryService
     {

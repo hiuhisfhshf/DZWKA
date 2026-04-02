@@ -6,7 +6,7 @@ namespace WEB_API.BLL
     {
         public required string Message { get; set; }
         public bool IsSuccess { get; set; } = true;
-        public object? Data { get; set; } = null;
+        public object? Data { get; set; }
         public HttpStatusCode HttpStatusCode { get; set; } = HttpStatusCode.OK;
     }
 }

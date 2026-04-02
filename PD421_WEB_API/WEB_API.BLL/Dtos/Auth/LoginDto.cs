@@ -1,7 +1,14 @@
-﻿namespace WEB_API.BLL.Dtos.Auth;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class LoginDto
+namespace WEB_API.BLL.Dtos.Auth
 {
-    public string Email { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    public class LoginDTO
+    {
+        public String? Email { get; set; }
+        public String? Password { get; set; }
+    }
 }

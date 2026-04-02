@@ -1,6 +1,13 @@
-﻿namespace WEB_API.BLL.Dtos.Auth;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class TokenDto
+namespace WEB_API.BLL.Dtos.Auth
 {
-    public string AccessToken { get; set; } = string.Empty;
+    public class TokenDTO
+    {
+        public String? AccessToken { get; set; }
+    }
 }

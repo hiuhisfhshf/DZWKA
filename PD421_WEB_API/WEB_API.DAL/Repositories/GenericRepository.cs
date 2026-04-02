@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WEB_API.DAL.Entities;
 
-namespace WEB_API.DAL.repositories
+namespace WEB_API.DAL.Repositories
 {
     public class GenericRepository<TEntity, TId> : IGenericRepository<TEntity, TId>
          where TEntity : class, IBaseEntity<TId>

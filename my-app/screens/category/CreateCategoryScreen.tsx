@@ -12,13 +12,15 @@ import {useCreateCategoryMutation} from "@/store/apis/categoryApi";
 import {ThemedText} from "@/components/themed-text";
 import {ICreateCategory} from "@/types/ICreateCategory";
 
+
 const CreateCategoryScreen = () => {
     const router = useRouter();
     const [createCategory, {isLoading}] = useCreateCategoryMutation();
 
     const {control, handleSubmit, setValue, formState: {errors}} = useForm<CreateCategoryFormData>({
         resolver: zodResolver(createCategorySchema),
-        defaultValues: {name: '',
+        defaultValues: {
+            name: '',
             description: '',
             image: undefined
         }
@@ -26,16 +28,19 @@ const CreateCategoryScreen = () => {
 
     const onSubmit = async (data: CreateCategoryFormData) => {
         const sendData: ICreateCategory = {
-            ...data,
-        }
+            ...data
+        };
+
         const response = await createCategory(sendData);
-        console.log(response);
+        console.log("response", response);
+        control._reset();
         router.push("/");
     }
 
+
     return (
         <>
-            <FormLayout title="Welcome">
+            <FormLayout title="Create category">
                 <Controller
                     control={control}
                     name="image"
@@ -46,7 +51,7 @@ const CreateCategoryScreen = () => {
                         />
                     )}
                 />
-                <ThemedText style={{color:"red", textAlign:"center"}}>{errors.image?.message as string}</ThemedText>
+                <ThemedText style={{color: "red", textAlign: "center"}}>{errors.image?.message as string}</ThemedText>
                 <Controller
                     control={control}
                     name="name"
@@ -61,8 +66,7 @@ const CreateCategoryScreen = () => {
                             autoCapitalize="none"
                             keyboardType="email-address"
                         />
-                    )}
-                />
+                    )}/>
 
                 <Controller
                     control={control}
@@ -87,9 +91,9 @@ const CreateCategoryScreen = () => {
                         onPress={() => router.push('/')}
                     />
                 </View>
+
             </FormLayout>
-        </>
-    )
-}
+        </>)}
+
 
 export default CreateCategoryScreen;
